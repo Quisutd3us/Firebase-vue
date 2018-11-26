@@ -1,4 +1,5 @@
 ((d, c, f) => {
+    ;
     // Initialize Firebase
     var config = {
         apiKey: "AIzaSyCHuZiA7OkfdAgZN1OTKNn7EAUZPmVq130",
@@ -70,6 +71,13 @@
                 db.ref('Contact/' + contact.id).set(contact)
                 contact.edit = !contact.edit;
                 this.showContacts();
+            },
+            manageEdit(contact) {
+                console.log('manage', contact)
+                contact.edit= !contact.edit
+                this.contacts.map((tmp) => {
+                    console.log(tmp);
+                })
             }
         }
     })

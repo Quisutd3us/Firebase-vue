@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h1>CRUD Firase</h1>
+    <h2>Lista de Contactos</h2>
+    <h3>Create/Update</h3>
+    <form action="">
+        <input type="text" name="name" id="name" placeholder="Tu nombre">
+        <br>
+        <input type="email" name="email" id="email" placeholder="Tu email">
+        <br>
+        <input type="text" id="id" disabled>
+        <br>
+        <input type="submit" value="Guardar">
+    </form>
+    <h3>Read /delete</h3>
+    <ul id="oraciones"></ul>
+    <!-- firebase -->
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
+
+    <script>
+        ;
+        ((d, c, f) => {;
+            // Initialize Firebase
+            var config = {
+                apiKey: "AIzaSyCHuZiA7OkfdAgZN1OTKNn7EAUZPmVq130",
+                authDomain: "edteam-60e77.firebaseapp.com",
+                databaseURL: "https://edteam-60e77.firebaseio.com",
+                projectId: "edteam-60e77",
+                storageBucket: "edteam-60e77.appspot.com",
+                messagingSenderId: "441298748147"
+            };
+            f.initializeApp(config);
+            let db = f.database();
+            oracionesRef = db.ref().child('oraciones')
+            let formOraciones = d.forms[0]
+            let frmNombre = d.getElementById('name')
+            let frmEmail = d.getElementById('email')
+            let frmId = d.getElementById('id')
+            let oraciones = d.getElementById('oraciones')
+
+            function contactTemplate({
+                nombre,
+                email
+            }) {
+                return `
+                    <span class="name">${nombre}</span>
+                    -
+                    <span class="email">${email}</span>
+                    <button class="edit">Editar</button>
+                    <button class="delete">Delete</button>
+                `
+            }
+
+
+            // CREATE
+            formOraciones.addEventListener('submit', (e) => {
+                e.preventDefault();
+                console.log('procesando formulario..');
+                let id = frmId.value || oracionesRef.push().key
+                newOracion = {
+                        nombre: frmNombre.value,
+                        email: frmEmail.value
+                    },
+                    updateOracion = {}
+                updateOracion[`/${id}`] = newOracion
+                oracionesRef.update(updateOracion)
+            })
+
+            // READ
+            oracionesRef.on('child_added', data => {
+                let li = d.createElement('li')
+                li.id = data.key
+                li.innerHTML = contactTemplate(data.val())
+                oraciones.appendChild(li)
+            })
+            oracionesRef.on('child_changed', data => {
+                let affectedNode = d.getElementById(data.key)
+                affectedNode.innerHTML = contactTemplate(data.val())
+            })
+            oracionesRef.on('child_removed', data => {
+                let affectedNode = d.getElementById(data.key)
+                oraciones.removeChild(affectedNode)
+            })
+
+            // UPDATE & DELETE
+
+            d.addEventListener('click', (e) => {
+                let affectedNode = e.target.parentElement
+                // UPDATE
+                if (e.target.matches("button.edit")) {
+                    console.log('click Edit')
+                    frmNombre.value = affectedNode.querySelector('.name').innerText
+                    frmEmail.value = affectedNode.querySelector('.email').innerText
+                    frmId.value = affectedNode.id
+                }
+                // DELETE
+                if (e.target.matches("button.delete")) {
+                    console.log('click Delete')
+                    db.ref(`oraciones/${affectedNode.id}`).remove()
+                }
+            })
+
+        })(document, console.log, firebase);
+    </script>
+</body>
+
+</html>
