@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Authetication | Firebase</title>
+
+    <!-- font awesome -->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+        crossorigin="anonymous">
+</head>
+
+<body>
+
+    <h1>Autenticación</h1>
+    <button id="login">
+        Entra con
+        <i class="fab fa-github"></i>
+    </button>
+    <div id="login-message"></div>
+
+    <p id="session-message"></p>
+    <!-- firebase -->
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
+
+    <script>
+        ;
+        ((d, c, f) => {;
+            // Initialize Firebase
+            var config = {
+                apiKey: "AIzaSyCHuZiA7OkfdAgZN1OTKNn7EAUZPmVq130",
+                authDomain: "edteam-60e77.firebaseapp.com",
+                databaseURL: "https://edteam-60e77.firebaseio.com",
+                projectId: "edteam-60e77",
+                storageBucket: "edteam-60e77.appspot.com",
+                messagingSenderId: "441298748147"
+            };
+            f.initializeApp(config);
+            const provider = new f.auth.GithubAuthProvider(),
+                user = f.auth.currentUser,
+                loginMessage = d.getElementById('login-message'),
+                sessioMessage =
+                d.getElementById('session-message')
+
+            f.auth().onAuthStateChanged(user => {
+                if (user) {
+                    c('Usuario Autenticado')
+                    sessioMessage.innerHTML =
+                        `
+                        <p>Si ves este contenido es x q estas  <b>logueado</b> <p><br>
+                        <button id="logout">Salir</button>
+                    `
+                } else {
+                    c('no Autenticado')
+                    sessioMessage.innerHTML =
+                        `
+                        <p>El Contenido de esta seccion es para usuarios  <b>Registrados</b> <p><br>
+                    `
+                }
+            })
+
+
+
+            d.addEventListener('click', (e) => {
+
+                if (e.target.matches('button#logout')) {
+                    console.log('Logueando..');
+                    f.auth().signOut()
+                        .then(response => {
+                            console.log(response)
+                            loginMessage.innerHTML =
+                                `
+                        <p class="sucessfully">Sesion Terminada<p><br>
+                    `
+                        })
+                        .catch(err => {
+                            loginMessage.innerHTML =
+                                `
+                        <p class="error">Error de SignOut con Github <b>${err.code}</b> : <b>${err.message}</b> <p>
+                    `
+                        })
+                }
+
+                if (e.target.matches('button#login')) {
+                    console.log('Logueando..');
+                    f.auth().signInWithPopup(provider)
+                        .then(response => {
+                            console.log(response)
+                            loginMessage.innerHTML =
+                                `
+                        <p class="sucessfully">Autenticacion Correcta<p><br>
+                        <h3>${response.user.displayName}</h3>
+                        <h3>${response.user.email}</h3>
+                        <img src="${response.user.photoURL}" alt=""><br>
+                    `
+                        })
+                        .catch(err => {
+                            loginMessage.innerHTML =
+                                `
+                        <p class="error">Error de Autenticación con Github <b>${err.code}</b> : <b>${err.message}</b> <p>
+                    `
+                        })
+                }
+            })
+
+        })(document, console.log, firebase);
+    </script>
+</body>
+
+</html>
